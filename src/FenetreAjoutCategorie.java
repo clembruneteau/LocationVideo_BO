@@ -59,7 +59,7 @@ public class FenetreAjoutCategorie extends JFrame {
 		String libelleFilm = "";
 		String titreFenetre = "Ajouter une vidéo";
 		
-		if(categorie != null){
+		if(id != -1){
 			id = categorie.getId();
 			libelleFilm = categorie.getLibelle();
 			titreFenetre = "Modifier la vidéo - " + libelleFilm;
