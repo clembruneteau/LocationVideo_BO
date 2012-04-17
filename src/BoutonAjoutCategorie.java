@@ -1,15 +1,16 @@
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-import javax.swing.JButton;
-
-
 public class BoutonAjoutCategorie implements ActionListener {
+
+	private Fenetre fenetre;
+	public BoutonAjoutCategorie(Fenetre f) {
+		this.fenetre = f;
+	}
 
 	@Override
 	public void actionPerformed(ActionEvent arg0) {
-		System.out.println("ajout categorie");
-		
+		new FenetreAjoutCategorie(this.fenetre);
 	}
 
 	
