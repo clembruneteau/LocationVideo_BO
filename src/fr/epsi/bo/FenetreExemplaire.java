@@ -20,13 +20,14 @@ import javax.swing.JTextField;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
+
 import fr.epsi.location.pojo.Exemplaire;
 import fr.epsi.location.pojo.Video;
 import fr.epsi.location.remote.LocationBean;
 
 public class FenetreExemplaire extends JFrame {
-
-	private SimpleDateFormat dateFormat = new SimpleDateFormat("dd/mm/yyyy");
 	
 	private List<Exemplaire> exemplaires = new ArrayList<Exemplaire>();
 	private Video video;
@@ -89,12 +90,7 @@ public class FenetreExemplaire extends JFrame {
 					String selection = (String) liste.getSelectedValue();
 					int idSelectionne =  Integer.parseInt(selection.split(" - ")[0]); // 0 : id / 1 : date
 					exemplaireSelectionne = location.getExemplaire(idSelectionne);
-
-					try {
-						dateAchat.setText(dateFormat.format(exemplaireSelectionne.getDateAchat()));
-					} catch (ParseException e1) {
-						e1.printStackTrace();
-					}
+					dateAchat.setText(new DateTime(exemplaireSelectionne.getDateAchat()).toString("dd/MM/yyyy"));
 				}
 			}
 		});
@@ -139,15 +135,14 @@ public class FenetreExemplaire extends JFrame {
 		for(Exemplaire e : tousEx){
 			if(video.getId() == e.getVideo().getId()){
 				exemplaires.add(e);
-				modelExemplaires.addElement(e.getId() + " - " + dateFormat.format(e.getDateAchat()));
+				modelExemplaires.addElement(e.getId() + " - " + new DateTime(e.getDateAchat()));
 			}
 		}
 	}
 
 	private void ajouterExemplaire(){
-		String dateJour = dateFormat.format(new Date());
 		try {
-			Exemplaire e = new Exemplaire(dateFormat.parse(dateJour), video);
+			Exemplaire e = new Exemplaire(new DateTime(), video);
 			location.ajouterExemplaire(e);
 
 			actualiserListe();

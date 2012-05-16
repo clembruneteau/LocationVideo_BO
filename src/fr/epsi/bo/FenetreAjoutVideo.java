@@ -4,8 +4,6 @@ import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
 
 import javax.swing.JButton;
@@ -17,6 +15,9 @@ import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
+import org.joda.time.DateTime;
+import org.joda.time.JodaTimePermission;
+
 import fr.epsi.location.pojo.Categorie;
 import fr.epsi.location.pojo.Video;
 import fr.epsi.location.remote.LocationBean;
@@ -26,14 +27,13 @@ public class FenetreAjoutVideo extends JFrame {
 	private LocationBean location = new LocationBean();
 	private Video video = null;
 	private int id = -1;
-	private SimpleDateFormat dateFormat = new SimpleDateFormat("dd/mm/yyyy");
 	private Fenetre fenetrePrincipale;
 	
-	private JTextField titre = new JTextField();
-	private JTextField duree = new JTextField();
-	private JTextField date = new JTextField();
-	private JComboBox categories = new JComboBox();
-	private JTextArea synopsis = new JTextArea();
+	private JTextField jTextField_titre = new JTextField();
+	private JTextField jTextField_duree = new JTextField();
+	private JTextField jTextField_date = new JTextField();
+	private JComboBox jComboBox_categories = new JComboBox();
+	private JTextArea jTextArea_synopsis = new JTextArea();
 
 	public FenetreAjoutVideo(Fenetre f){
 		this.fenetrePrincipale = f;
@@ -46,7 +46,7 @@ public class FenetreAjoutVideo extends JFrame {
 		videos = location.getListeVideos();
 		
 		for(Video v : videos){
-			if(titre == v.getTitre()){
+			if(titre == v.getTitre()) {
 				video = v;
 			}
 		}
@@ -86,7 +86,7 @@ public class FenetreAjoutVideo extends JFrame {
 
 		String titreFilm = "";
 		int dureeFilm = 0;
-		String dateSortie = "";
+		DateTime dateSortie = new DateTime();
 		String synopsisFilm = "";
 		String titreFenetre = "Ajouter une vidéo";
 		
@@ -94,33 +94,33 @@ public class FenetreAjoutVideo extends JFrame {
 			id = video.getId();
 			titreFilm = video.getTitre();
 			dureeFilm = video.getDuree();
-			dateSortie = dateFormat.format(video.getDateSortie());
+			dateSortie = video.getDateSortie();
 			synopsisFilm = video.getSynopsis();
 			titreFenetre = "Modifier la vidéo - " + titreFilm;
 		}
 
 		JLabel labelTitre = new JLabel("Titre : ");
-		titre.setText(titreFilm);
-		titre.setPreferredSize(new Dimension(170,20));
+		jTextField_titre.setText(titreFilm);
+		jTextField_titre.setPreferredSize(new Dimension(170,20));
 		
 		JLabel labelDuree = new JLabel("Durée : ");
-		duree.setText(String.valueOf(dureeFilm));
-		duree.setPreferredSize(new Dimension(70,20));
+		jTextField_duree.setText(String.valueOf(dureeFilm));
+		jTextField_duree.setPreferredSize(new Dimension(70,20));
 		
 		JLabel labelDate = new JLabel("Date : ");
-		date.setText(dateSortie.toString());
-		date.setPreferredSize(new Dimension(185,20));
+		jTextField_date.setText(dateSortie.toString("dd/MM/yyyy"));
+		jTextField_date.setPreferredSize(new Dimension(185,20));
 		
 		JLabel labelCategories = new JLabel("Catégories : ");
-		categories.setPreferredSize(new Dimension(150,20));
-		initialiserCategories(categories);
+		jComboBox_categories.setPreferredSize(new Dimension(150,20));
+		initialiserCategories(jComboBox_categories);
 		
 
 		JLabel labelSynopsis = new JLabel("Synopsis : ");
-		synopsis.setText(synopsisFilm);
-		synopsis.setPreferredSize(new Dimension(350,140));
-		synopsis.setBackground(Color.white);
-		synopsis.setVisible(true);
+		jTextArea_synopsis.setText(synopsisFilm);
+		jTextArea_synopsis.setPreferredSize(new Dimension(350,140));
+		jTextArea_synopsis.setBackground(Color.white);
+		jTextArea_synopsis.setVisible(true);
 		
 		
 		this.setTitle(titreFenetre);
@@ -129,17 +129,17 @@ public class FenetreAjoutVideo extends JFrame {
         this.setLayout(null);
         
         panelChamps.add(labelTitre);
-        panelChamps.add(titre);
+        panelChamps.add(jTextField_titre);
         panelChamps.add(labelDate);
-        panelChamps.add(date);
+        panelChamps.add(jTextField_date);
         panelChamps.add(labelDuree);
-        panelChamps.add(duree);
+        panelChamps.add(jTextField_duree);
         panelChamps.add(labelCategories);
-        panelChamps.add(categories);
+        panelChamps.add(jComboBox_categories);
         panelChamps.setBounds(0, 0, 480, 80);
         
         panelSynopsis.add(labelSynopsis);
-        panelSynopsis.add(synopsis);
+        panelSynopsis.add(jTextArea_synopsis);
         panelSynopsis.setBounds(0, 80, 480, 150);
         
         panelBoutons.add(exemplaire);
@@ -166,15 +166,13 @@ public class FenetreAjoutVideo extends JFrame {
 	}
 	
 	public void enregistrerVideo() throws ParseException{
-		if(categories.getSelectedIndex() == -1){
+		if(jComboBox_categories.getSelectedIndex() == -1){
 			JOptionPane.showMessageDialog(null, "Choisissez une catégorie","Attention",JOptionPane.ERROR_MESSAGE);
 		}else{
-			video.setSynopsis(synopsis.getText());
-			video.setTitre(titre.getText());
+			video.setSynopsis(jTextArea_synopsis.getText());
+			video.setTitre(jTextField_titre.getText());
 			
-			Date dateSortie = dateFormat.parse(date.getText());
-			
-			video = new Video(titre.getText(), Integer.parseInt(duree.getText()), dateSortie, synopsis.getText(), new Categorie(categories.getSelectedItem().toString()));
+			video = new Video(jTextField_titre.getText(), Integer.parseInt(jTextField_duree.getText()), new DateTime(jTextField_date.getText()), jTextArea_synopsis.getText(), location.getCategorie(jComboBox_categories.getSelectedIndex()));
 	
 			if(id != -1){
 				video.setId(id);

@@ -2,6 +2,7 @@ package fr.epsi.bo;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -14,46 +15,47 @@ import javax.swing.JPanel;
 
 import fr.epsi.location.pojo.Categorie;
 import fr.epsi.location.pojo.Video;
-import fr.epsi.location.remote.LocationBean;
+import fr.epsi.location.remote.ILocation;
 
 
 public class Fenetre extends JFrame {
     
-    List<Categorie> listeCategories;
-    List<Video> listeVideos;
+	private List<Categorie> listeCategories;
+	private List<Video> listeVideos;
+	private ILocation location;
 
-	JPanel panelVideo = new JPanel();
-    JPanel panelCategorie = new JPanel();
+	private JPanel panelVideo = new JPanel();
+	private JPanel panelCategorie = new JPanel();
     
-	JPanel panelBtVideo = new JPanel();
-    JPanel panelBtCategorie = new JPanel();
-    JPanel panelBtFermer = new JPanel();
+	private JPanel panelBtVideo = new JPanel();
+	private JPanel panelBtCategorie = new JPanel();
+	private JPanel panelBtFermer = new JPanel();
     
-    JButton ajoutVideo = new JButton("+");
-    JButton enleverVideo = new JButton("-");
-    JButton ajoutCategorie = new JButton("+");
-    JButton enleverCategorie = new JButton("-");
-    JButton quitter = new JButton("Quitter");
+	private JButton ajoutVideo = new JButton("+");
+	private JButton enleverVideo = new JButton("-");
+	private JButton ajoutCategorie = new JButton("+");
+	private JButton enleverCategorie = new JButton("-");
+	private JButton quitter = new JButton("Quitter");
     
-    JList videos = new JList();
-    JList categories = new JList();
+	private JList videos = new JList();
+	private JList categories = new JList();
 
-	DefaultListModel modelCategories = new DefaultListModel();
-	DefaultListModel modelVideos = new DefaultListModel();
+	private DefaultListModel modelCategories = new DefaultListModel();
+	private DefaultListModel modelVideos = new DefaultListModel();
 
-    private JLabel labelleVideo = new JLabel("Liste des vid�os : ");
-    private JLabel labelleCategorie = new JLabel("Liste des cat�gories : ");
+    private JLabel labelleVideo = new JLabel("Liste des vidéos : ");
+    private JLabel labelleCategorie = new JLabel("Liste des catégories : ");
 
-    BoutonEnleverCategorie btEnleverCateg = new BoutonEnleverCategorie(this, categories);
-    BoutonEnleverVideo btEnleverVideo = new BoutonEnleverVideo(this, videos);
+    private BoutonEnleverCategorie btEnleverCateg = new BoutonEnleverCategorie(this, categories);
+    private BoutonEnleverVideo btEnleverVideo = new BoutonEnleverVideo(this, videos);
     
-    BoutonAjoutCategorie btAjouterCateg = new BoutonAjoutCategorie(this);
-    BoutonAjoutVideo btAjouterVideo = new BoutonAjoutVideo(this);
+    private BoutonAjoutCategorie btAjouterCateg = new BoutonAjoutCategorie(this);
+    private BoutonAjoutVideo btAjouterVideo = new BoutonAjoutVideo(this);
 	
 	
 	public Fenetre(){
 		
-		this.setTitle("Client location vid�o");
+		this.setTitle("Client location vidéo");
         this.setSize(550, 550);
         this.setLocationRelativeTo(null);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);   
@@ -107,18 +109,18 @@ public class Fenetre extends JFrame {
         this.getContentPane().add(panelCategorie);
         this.getContentPane().add(panelBtCategorie);
         
-        
         this.setVisible(true);
         actualiserListes();
 	}
 	
-	public void actualiserListes(){
-		LocationBean location = new LocationBean();
+	public void actualiserListes(){		
+
+		location = ServiceJNDI.getBeanFromContext();
 		
 		categories.removeAll();
 		modelCategories.removeAllElements();
 		categories.setModel(modelCategories);
-		listeCategories = location.getListeCategories();
+		listeCategories = (List<Categorie>)location.getListeCategories();
 		Iterator i = listeCategories.iterator();
 		
 		while(i.hasNext()){

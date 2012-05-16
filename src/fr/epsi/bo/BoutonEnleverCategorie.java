@@ -1,3 +1,4 @@
+package fr.epsi.bo;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.List;
@@ -24,12 +25,12 @@ public class BoutonEnleverCategorie implements ActionListener {
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if(categories.getSelectedIndex() == -1 ){
-			JOptionPane.showMessageDialog(null, "Choisissez la catégorie à supprimer","Attention",JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(null, "Choisissez la catÃ©gorie Ã  supprimer","Attention",JOptionPane.ERROR_MESSAGE);
 		}else{
 			List<Categorie> categories = location.getListeCategories();
 				for(Categorie c : categories){
 					if(categorie == c.getLibelle()){
-						location.supprimerCategorie(c.getId());
+						location.supprimerCategorie(c);
 						fenetre.actualiserListes();
 					}
 				}
