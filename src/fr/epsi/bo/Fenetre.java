@@ -14,6 +14,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 import fr.epsi.location.pojo.Categorie;
+import fr.epsi.location.pojo.Exemplaire;
 import fr.epsi.location.pojo.Video;
 import fr.epsi.location.remote.ILocation;
 
@@ -77,9 +78,18 @@ public class Fenetre extends JFrame {
 				if(videos.getSelectedIndex() == -1 ){
 					JOptionPane.showMessageDialog(null, "Choisissez la vidéo à supprimer","Attention",JOptionPane.ERROR_MESSAGE);
 				}else{
-					Video maVideo = location.getVideoParSonTitre(videos.getSelectedValue().toString());
-					location.supprimerVideo(maVideo);
-					Fenetre.this.actualiserListes();
+					int option = JOptionPane.showConfirmDialog(null, "Supprimer la vidéo supprimera également tous les exemplaires associés.\nSouhaitez-vous les supprimer tout de même?","Attention",JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+					
+					if (option == JOptionPane.OK_OPTION) {
+						Video maVideo = location.getVideoParSonTitre(videos.getSelectedValue().toString());
+						List<Exemplaire> exemplairesASupprimer = location.getListeExemplairesParVideo(maVideo.getId());
+						
+						for(Exemplaire exemplaire : exemplairesASupprimer){
+							location.supprimerExemplaire(exemplaire);
+						}
+						location.supprimerVideo(maVideo);
+						Fenetre.this.actualiserListes();
+					}
 				}
 				
 			}
