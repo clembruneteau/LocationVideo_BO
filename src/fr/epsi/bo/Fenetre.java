@@ -2,7 +2,6 @@ package fr.epsi.bo;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -59,7 +58,6 @@ public class Fenetre extends JFrame {
         this.setSize(550, 550);
         this.setLocationRelativeTo(null);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);   
-//      this.setLayout(new GridLayout(1, 2));   
         this.setLayout(null);
         
         quitter.addActionListener(new ActionListener() {

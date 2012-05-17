@@ -4,9 +4,7 @@ import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import javax.swing.DefaultListModel;
@@ -21,7 +19,6 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
 
 import fr.epsi.location.pojo.Exemplaire;
 import fr.epsi.location.pojo.Video;

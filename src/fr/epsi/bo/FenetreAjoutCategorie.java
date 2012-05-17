@@ -58,15 +58,15 @@ public class FenetreAjoutCategorie extends JFrame {
 	    	});
 
 		String libelleFilm = "";
-		String titreFenetre = "Ajouter une vid�o";
+		String titreFenetre = "Ajouter une vidéo";
 		
 		if(id != -1){
 			id = categorie.getId();
 			libelleFilm = categorie.getLibelle();
-			titreFenetre = "Modifier la vid�o - " + libelleFilm;
+			titreFenetre = "Modifier la vidéo - " + libelleFilm;
 		}
 
-		JLabel labelTitre = new JLabel("Libell� : ");
+		JLabel labelTitre = new JLabel("Libellé : ");
 		libelle.setText(libelleFilm);
 		libelle.setPreferredSize(new Dimension(170,20));
 		
