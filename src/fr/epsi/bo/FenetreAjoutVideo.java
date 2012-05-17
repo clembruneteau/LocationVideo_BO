@@ -68,15 +68,12 @@ public class FenetreAjoutVideo extends JFrame {
 	    	@Override public void actionPerformed(ActionEvent e) 
 	    		{dispose();}
 	    	});
-		JButton exemplaire = new JButton("Gérer les exemplaires");
-		exemplaire.setPreferredSize(new Dimension(450, 40));
-		exemplaire.addActionListener(new ActionListener() {
-	    	@Override public void actionPerformed(ActionEvent e) 
-	    		{new FenetreExemplaire(video);}
-	    	});
-		if(video == null){
-			exemplaire.setEnabled(false);
-		}
+//		JButton exemplaire = new JButton("Gérer les exemplaires");
+//		exemplaire.setPreferredSize(new Dimension(450, 40));
+//		exemplaire.addActionListener(new ActionListener() {
+//	    	@Override public void actionPerformed(ActionEvent e) 
+//	    		{new FenetreExemplaire(video);}
+//	    	});
 
 		String titreFilm = "";
 		int dureeFilm = 0;
@@ -136,7 +133,7 @@ public class FenetreAjoutVideo extends JFrame {
         panelSynopsis.add(jTextArea_synopsis);
         panelSynopsis.setBounds(0, 80, 480, 150);
         
-        panelBoutons.add(exemplaire);
+//        panelBoutons.add(exemplaire);
         panelBoutons.add(Enregistrer);
         panelBoutons.add(annuler);
         panelBoutons.setBounds(0, 240, 480, 100);

@@ -22,14 +22,13 @@ import org.joda.time.DateTime;
 
 import fr.epsi.location.pojo.Exemplaire;
 import fr.epsi.location.pojo.Video;
-import fr.epsi.location.remote.LocationBean;
+import fr.epsi.location.remote.ILocation;
 
 public class FenetreExemplaire extends JFrame {
 	
 	private List<Exemplaire> exemplaires = new ArrayList<Exemplaire>();
 	private Video video;
-	private Exemplaire exemplaireSelectionne = null;
-	private LocationBean location = new LocationBean();
+	private ILocation location = ServiceJNDI.getBeanFromContext();
 	private JList listeExemplaires = new JList();
 	DefaultListModel modelExemplaires = new DefaultListModel();
 	
@@ -58,13 +57,6 @@ public class FenetreExemplaire extends JFrame {
 	    		ajouterExemplaire();
 			}
     	});
-	    JButton modifier = new JButton("Modifier");
-	    modifier.addActionListener(new ActionListener() {
-	    	public void actionPerformed(ActionEvent e) 
-    		{
-	    		modifierExemplaire();
-			}
-    	});
 	    JButton supprimer = new JButton("Supprimer");
 	    supprimer.addActionListener(new ActionListener() {
 	    	public void actionPerformed(ActionEvent e) 
@@ -78,23 +70,10 @@ public class FenetreExemplaire extends JFrame {
 	    	public void actionPerformed(ActionEvent e) 
 	    		{dispose();}
 	    	});
-	    
-		listeExemplaires.addListSelectionListener(new ListSelectionListener(){
-			@Override 
-			public void valueChanged(ListSelectionEvent e) {
-				if(e.getValueIsAdjusting()){
-					JList liste = (JList) e.getSource();
-					String selection = (String) liste.getSelectedValue();
-					int idSelectionne =  Integer.parseInt(selection.split(" - ")[0]); // 0 : id / 1 : date
-					exemplaireSelectionne = location.getExemplaire(idSelectionne);
-					dateAchat.setText(new DateTime(exemplaireSelectionne.getDateAchat()).toString("dd/MM/yyyy"));
-				}
-			}
-		});
+	   
 		listeExemplaires.setPreferredSize(new Dimension(150, 350));
 
 		dateAchat.setPreferredSize(new Dimension(150, 20));
-		modifier.setPreferredSize(new Dimension(150, 20));
 		supprimer.setPreferredSize(new Dimension(150, 20));
 		ajouter.setPreferredSize(new Dimension(150, 20));
 		quitter.setPreferredSize(new Dimension(150, 20));
@@ -111,7 +90,6 @@ public class FenetreExemplaire extends JFrame {
 
         panelBoutons.add(labelDate);
         panelBoutons.add(dateAchat);
-        panelBoutons.add(modifier);
         panelBoutons.add(supprimer);
         panelBoutons.add(ajouter);
         panelBoutons.add(quitter);
@@ -122,24 +100,36 @@ public class FenetreExemplaire extends JFrame {
         this.setVisible(true);
 	}
 	private void actualiserListe() throws ParseException {
-		List<Exemplaire>tousEx = location.getListeExemplaires();
+		List<Exemplaire> tousEx = location.getListeExemplaires();
 		
 		exemplaires.clear();
 		listeExemplaires.removeAll();
 		modelExemplaires.removeAllElements();
 		listeExemplaires.setModel(modelExemplaires);
 
-		for(Exemplaire e : tousEx){
+		for(Exemplaire e : tousEx) {
 			if(video.getId() == e.getVideo().getId()){
 				exemplaires.add(e);
-				modelExemplaires.addElement(e.getId() + " - " + new DateTime(e.getDateAchat()));
+				modelExemplaires.addElement(e.getId() + " - " + e.getDateAchat().toString("dd/MM/yyyy"));
 			}
 		}
+	}
+	
+	private DateTime convertStringToDate(String sDatedenaissance) {
+		if(sDatedenaissance.length() == 10) {
+			int jour = Integer.valueOf(sDatedenaissance.substring(0, 2)).intValue();
+			int mois = Integer.valueOf(sDatedenaissance.substring(3, 5)).intValue();
+			int annee = Integer.valueOf(sDatedenaissance.substring(6, 10)).intValue();
+	
+			return new DateTime(annee, mois, jour, 0, 0, 0);
+		}
+		else
+			return null;
 	}
 
 	private void ajouterExemplaire(){
 		try {
-			Exemplaire e = new Exemplaire(new DateTime(), video);
+			Exemplaire e = new Exemplaire(convertStringToDate(dateAchat.getText()), video);
 			location.ajouterExemplaire(e);
 
 			actualiserListe();
@@ -148,25 +138,13 @@ public class FenetreExemplaire extends JFrame {
 		}
 	}
 	
-	private void modifierExemplaire() {
-		if(exemplaireSelectionne == null){
-			JOptionPane.showMessageDialog(null, "Vous devez choisir un exemplaire","Attention",JOptionPane.ERROR_MESSAGE);
-		}else{
-			location.modifierExemplaire(exemplaireSelectionne);
-
-			try {
-				actualiserListe();
-			} catch (ParseException e) {
-				e.printStackTrace();
-			}
-		}
-	}
-	
 	private void supprimerExemplaire() {
-		if(exemplaireSelectionne == null){
+		if(listeExemplaires.getSelectedIndex() == -1){
 			JOptionPane.showMessageDialog(null, "Vous devez choisir un exemplaire","Attention",JOptionPane.ERROR_MESSAGE);
 		}else{
-			location.supprimerExemplaire(exemplaireSelectionne);
+			int idSelectionne =  Integer.parseInt(listeExemplaires.getSelectedValue().toString().split(" - ")[0]); // 0 : id / 1 : date
+			Exemplaire exemplaire = location.getExemplaire(idSelectionne);
+			location.supprimerExemplaire(exemplaire);
 
 			try {
 				actualiserListe();

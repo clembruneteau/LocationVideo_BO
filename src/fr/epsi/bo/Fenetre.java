@@ -35,6 +35,7 @@ public class Fenetre extends JFrame {
 	private JButton btnEnleverVideo = new JButton("Supprimer");
 	private JButton btnAjoutCategorie = new JButton("Ajouter");
 	private JButton btnEnleverCategorie = new JButton("Supprimer");
+	private JButton btnGererExemplaire = new JButton("Gérer Exemplaires");
 	private JButton btnQuitter = new JButton("Quitter");
     
 	private JList videos = new JList();
@@ -51,7 +52,7 @@ public class Fenetre extends JFrame {
 	public Fenetre(){
 		
 		this.setTitle("Client location vidéo");
-        this.setSize(600, 600);
+        this.setSize(800, 600);
         this.setLocationRelativeTo(null);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);   
         this.setLayout(null);
@@ -68,7 +69,7 @@ public class Fenetre extends JFrame {
 				new FenetreAjoutVideo(Fenetre.this);
 			}
 		});
-        btnAjoutVideo.setPreferredSize(new Dimension(100, 50));
+        btnAjoutVideo.setPreferredSize(new Dimension(180, 50));
         btnEnleverVideo.addActionListener(new ActionListener() {
 			
 			@Override
@@ -83,7 +84,21 @@ public class Fenetre extends JFrame {
 				
 			}
 		});
-        btnEnleverVideo.setPreferredSize(new Dimension(100, 50));
+        btnEnleverVideo.setPreferredSize(new Dimension(180, 50));
+        
+		btnGererExemplaire.addActionListener(new ActionListener() {
+	    	
+			@Override 
+	    	public void actionPerformed(ActionEvent e) 
+    		{
+				if(videos.getSelectedIndex() == -1 ){
+					JOptionPane.showMessageDialog(null, "Choisissez la vidéo à gérer","Attention",JOptionPane.ERROR_MESSAGE);
+				}else{
+					new FenetreExemplaire(location.getVideoParSonTitre(videos.getSelectedValue().toString()));
+				}
+    		}
+    	});
+		btnGererExemplaire.setPreferredSize(new Dimension(180, 50));
         
         btnAjoutCategorie.addActionListener(new ActionListener() {
 			
@@ -92,21 +107,34 @@ public class Fenetre extends JFrame {
 				new FenetreAjoutCategorie(Fenetre.this);
 			}
 		});
-        btnAjoutCategorie.setPreferredSize(new Dimension(100, 50));
+        btnAjoutCategorie.setPreferredSize(new Dimension(180, 50));
         btnEnleverCategorie.addActionListener(new ActionListener() {
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				if(categories.getSelectedIndex() == -1 ){
+				if(categories.getSelectedIndex() == -1 ) {
 					JOptionPane.showMessageDialog(null, "Choisissez la catégorie à supprimer","Attention",JOptionPane.ERROR_MESSAGE);
 				}else{
-					Categorie maCategorie = location.getCategorieParSonLibelle(categories.getSelectedValue().toString());
-					location.supprimerCategorie(maCategorie);
-					Fenetre.this.actualiserListes();
+					
+					int option = JOptionPane.showConfirmDialog(null, "Supprimer la catégorie supprimera également toutes les vidéos associées.\nSouhaitez-vous les supprimer tout de même?","Attention",JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+					
+					if (option == JOptionPane.OK_OPTION) {
+						Categorie maCategorie = location.getCategorieParSonLibelle(categories.getSelectedValue().toString());
+						List<Video> videosASupprimer = location.getListeVideosParCategorie(maCategorie.getId());
+						
+						for(Video v : videosASupprimer){
+							location.supprimerVideo(v);
+						}
+						
+						location.supprimerCategorie(maCategorie);
+						Fenetre.this.actualiserListes();
+					}
+					
+					
 				}
 			}
 		});
-        btnEnleverCategorie.setPreferredSize(new Dimension(100, 50));
+        btnEnleverCategorie.setPreferredSize(new Dimension(180, 50));
         
         videos.setPreferredSize(new Dimension(180, 400));
         categories.setPreferredSize(new Dimension(180, 400));
@@ -117,16 +145,17 @@ public class Fenetre extends JFrame {
         
         panelBtVideo.add(btnAjoutVideo);
         panelBtVideo.add(btnEnleverVideo);
-        panelBtVideo.setBounds(210, 165, 50, 430);
+        panelBtVideo.add(btnGererExemplaire);
+        panelBtVideo.setBounds(210, 165, 180, 430);
         
 
         panelCategorie.add(labelleCategorie);
         panelCategorie.add(categories);
-        panelCategorie.setBounds(285, 0, 180, 430);
+        panelCategorie.setBounds(400, 0, 180, 430);
         
         panelBtCategorie.add(btnAjoutCategorie);
         panelBtCategorie.add(btnEnleverCategorie);
-        panelBtCategorie.setBounds(475, 165, 50, 430);
+        panelBtCategorie.setBounds(600, 165, 180, 430);
         
         panelBtFermer.add(btnQuitter);
         panelBtFermer.setBounds(220, 450, 90, 50);
