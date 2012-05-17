@@ -2,7 +2,6 @@ package fr.epsi.bo;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -11,6 +10,7 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 import fr.epsi.location.pojo.Categorie;
@@ -22,7 +22,7 @@ public class Fenetre extends JFrame {
     
 	private List<Categorie> listeCategories;
 	private List<Video> listeVideos;
-	private ILocation location;
+	private ILocation location = ServiceJNDI.getBeanFromContext();
 
 	private JPanel panelVideo = new JPanel();
 	private JPanel panelCategorie = new JPanel();
@@ -31,11 +31,11 @@ public class Fenetre extends JFrame {
 	private JPanel panelBtCategorie = new JPanel();
 	private JPanel panelBtFermer = new JPanel();
     
-	private JButton ajoutVideo = new JButton("+");
-	private JButton enleverVideo = new JButton("-");
-	private JButton ajoutCategorie = new JButton("+");
-	private JButton enleverCategorie = new JButton("-");
-	private JButton quitter = new JButton("Quitter");
+	private JButton btnAjoutVideo = new JButton("Ajouter");
+	private JButton btnEnleverVideo = new JButton("Supprimer");
+	private JButton btnAjoutCategorie = new JButton("Ajouter");
+	private JButton btnEnleverCategorie = new JButton("Supprimer");
+	private JButton btnQuitter = new JButton("Quitter");
     
 	private JList videos = new JList();
 	private JList categories = new JList();
@@ -46,40 +46,69 @@ public class Fenetre extends JFrame {
     private JLabel labelleVideo = new JLabel("Liste des vidéos : ");
     private JLabel labelleCategorie = new JLabel("Liste des catégories : ");
 
-    private BoutonEnleverCategorie btEnleverCateg = new BoutonEnleverCategorie(this, categories);
-    private BoutonEnleverVideo btEnleverVideo = new BoutonEnleverVideo(this, videos);
-    
-    private BoutonAjoutCategorie btAjouterCateg = new BoutonAjoutCategorie(this);
-    private BoutonAjoutVideo btAjouterVideo = new BoutonAjoutVideo(this);
 	
 	
 	public Fenetre(){
 		
 		this.setTitle("Client location vidéo");
-        this.setSize(550, 550);
+        this.setSize(600, 600);
         this.setLocationRelativeTo(null);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);   
 //      this.setLayout(new GridLayout(1, 2));   
         this.setLayout(null);
         
-        quitter.addActionListener(new ActionListener() {
+        btnQuitter.addActionListener(new ActionListener() {
 	    	@Override public void actionPerformed(ActionEvent e) 
 	    		{System.exit(0);}
 	    	});
         
-        ajoutVideo.addActionListener(btAjouterVideo);
-        ajoutVideo.setPreferredSize(new Dimension(50, 50));
-        enleverVideo.addActionListener(btEnleverVideo);
-        enleverVideo.setPreferredSize(new Dimension(50, 50));
+        btnAjoutVideo.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				new FenetreAjoutVideo(Fenetre.this);
+			}
+		});
+        btnAjoutVideo.setPreferredSize(new Dimension(100, 50));
+        btnEnleverVideo.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if(videos.getSelectedIndex() == -1 ){
+					JOptionPane.showMessageDialog(null, "Choisissez la vidéo à supprimer","Attention",JOptionPane.ERROR_MESSAGE);
+				}else{
+					Video maVideo = location.getVideoParSonTitre(videos.getSelectedValue().toString());
+					location.supprimerVideo(maVideo);
+					Fenetre.this.actualiserListes();
+				}
+				
+			}
+		});
+        btnEnleverVideo.setPreferredSize(new Dimension(100, 50));
         
-        ajoutCategorie.addActionListener(btAjouterCateg);
-        ajoutCategorie.setPreferredSize(new Dimension(50, 50));
-        enleverCategorie.addActionListener(btEnleverCateg);
-        enleverCategorie.setPreferredSize(new Dimension(50, 50));
+        btnAjoutCategorie.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				new FenetreAjoutCategorie(Fenetre.this);
+			}
+		});
+        btnAjoutCategorie.setPreferredSize(new Dimension(100, 50));
+        btnEnleverCategorie.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if(categories.getSelectedIndex() == -1 ){
+					JOptionPane.showMessageDialog(null, "Choisissez la catégorie à supprimer","Attention",JOptionPane.ERROR_MESSAGE);
+				}else{
+					Categorie maCategorie = location.getCategorieParSonLibelle(categories.getSelectedValue().toString());
+					location.supprimerCategorie(maCategorie);
+					Fenetre.this.actualiserListes();
+				}
+			}
+		});
+        btnEnleverCategorie.setPreferredSize(new Dimension(100, 50));
         
-        videos.addListSelectionListener(new VideosAction(this));
-        categories.addListSelectionListener(new CategoriesAction(this, btEnleverCateg));
-
         videos.setPreferredSize(new Dimension(180, 400));
         categories.setPreferredSize(new Dimension(180, 400));
 
@@ -87,8 +116,8 @@ public class Fenetre extends JFrame {
         panelVideo.add(videos);
         panelVideo.setBounds(20, 0, 180, 430);
         
-        panelBtVideo.add(ajoutVideo);
-        panelBtVideo.add(enleverVideo);
+        panelBtVideo.add(btnAjoutVideo);
+        panelBtVideo.add(btnEnleverVideo);
         panelBtVideo.setBounds(210, 165, 50, 430);
         
 
@@ -96,11 +125,11 @@ public class Fenetre extends JFrame {
         panelCategorie.add(categories);
         panelCategorie.setBounds(285, 0, 180, 430);
         
-        panelBtCategorie.add(ajoutCategorie);
-        panelBtCategorie.add(enleverCategorie);
+        panelBtCategorie.add(btnAjoutCategorie);
+        panelBtCategorie.add(btnEnleverCategorie);
         panelBtCategorie.setBounds(475, 165, 50, 430);
         
-        panelBtFermer.add(quitter);
+        panelBtFermer.add(btnQuitter);
         panelBtFermer.setBounds(220, 450, 90, 50);
 
         this.getContentPane().add(panelBtFermer);
@@ -115,7 +144,7 @@ public class Fenetre extends JFrame {
 	
 	public void actualiserListes(){		
 
-		location = ServiceJNDI.getBeanFromContext();
+		//location = ServiceJNDI.getBeanFromContext();
 		
 		categories.removeAll();
 		modelCategories.removeAllElements();

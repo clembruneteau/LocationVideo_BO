@@ -11,11 +11,12 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 
 import fr.epsi.location.pojo.Categorie;
+import fr.epsi.location.remote.ILocation;
 import fr.epsi.location.remote.LocationBean;
 
 public class FenetreAjoutCategorie extends JFrame {
     
-	private LocationBean location = new LocationBean();
+	private ILocation location = ServiceJNDI.getBeanFromContext();
 	private Categorie categorie = new Categorie();
 	private int id = -1;
 	private Fenetre fenetrePrincipale;
@@ -58,15 +59,15 @@ public class FenetreAjoutCategorie extends JFrame {
 	    	});
 
 		String libelleFilm = "";
-		String titreFenetre = "Ajouter une vid�o";
+		String titreFenetre = "Ajouter une vidéo";
 		
 		if(id != -1){
 			id = categorie.getId();
 			libelleFilm = categorie.getLibelle();
-			titreFenetre = "Modifier la vid�o - " + libelleFilm;
+			titreFenetre = "Modifier la vidéo - " + libelleFilm;
 		}
 
-		JLabel labelTitre = new JLabel("Libell� : ");
+		JLabel labelTitre = new JLabel("Libellé : ");
 		libelle.setText(libelleFilm);
 		libelle.setPreferredSize(new Dimension(170,20));
 		

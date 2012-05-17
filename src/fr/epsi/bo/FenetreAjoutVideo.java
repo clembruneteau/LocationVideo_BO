@@ -20,11 +20,12 @@ import org.joda.time.JodaTimePermission;
 
 import fr.epsi.location.pojo.Categorie;
 import fr.epsi.location.pojo.Video;
+import fr.epsi.location.remote.ILocation;
 import fr.epsi.location.remote.LocationBean;
 
 public class FenetreAjoutVideo extends JFrame {
     
-	private LocationBean location = new LocationBean();
+	private ILocation location = ServiceJNDI.getBeanFromContext();
 	private Video video = null;
 	private int id = -1;
 	private Fenetre fenetrePrincipale;
@@ -42,14 +43,8 @@ public class FenetreAjoutVideo extends JFrame {
 
 	public FenetreAjoutVideo(Fenetre f, String titre) {
 		this.fenetrePrincipale = f;
-	    List<Video> videos;
-		videos = location.getListeVideos();
-		
-		for(Video v : videos){
-			if(titre == v.getTitre()) {
-				video = v;
-			}
-		}
+	    
+		video = location.getVideoParSonTitre (titre); 
 		
 		initialiserFenetre();
 	}
@@ -165,20 +160,40 @@ public class FenetreAjoutVideo extends JFrame {
 			categories.setSelectedItem(video.getCategorie().getLibelle());
 	}
 	
-	public void enregistrerVideo() throws ParseException{
-		if(jComboBox_categories.getSelectedIndex() == -1){
+	private DateTime convertStringToDate(String sDatedenaissance) {
+		if(sDatedenaissance.length() == 10) {
+			int jour = Integer.valueOf(sDatedenaissance.substring(0, 2)).intValue();
+			int mois = Integer.valueOf(sDatedenaissance.substring(3, 5)).intValue();
+			int annee = Integer.valueOf(sDatedenaissance.substring(6, 10)).intValue();
+	
+			return new DateTime(annee, mois, jour, 0, 0, 0);
+		}
+		else
+			return null;
+	}
+	
+	public void enregistrerVideo() throws ParseException {
+		if(jComboBox_categories.getSelectedIndex() == -1) {
 			JOptionPane.showMessageDialog(null, "Choisissez une catégorie","Attention",JOptionPane.ERROR_MESSAGE);
 		}else{
-			video.setSynopsis(jTextArea_synopsis.getText());
-			video.setTitre(jTextField_titre.getText());
-			
-			video = new Video(jTextField_titre.getText(), Integer.parseInt(jTextField_duree.getText()), new DateTime(jTextField_date.getText()), jTextArea_synopsis.getText(), location.getCategorie(jComboBox_categories.getSelectedIndex()));
-	
-			if(id != -1){
-				video.setId(id);
+			if(id != -1) {
+				if (video.getDuree() != Integer.parseInt(jTextField_duree.getText()))
+					video.setDuree(Integer.parseInt(jTextField_duree.getText()));
+				if (video.getCategorie().getLibelle() != jComboBox_categories.getSelectedItem())
+					video.setCategorie(location.getCategorieParSonLibelle(jComboBox_categories.getSelectedItem().toString()));
+				if (video.getDateSortie().toString("dd/MM/yyyy") != jTextField_date.getText())
+					video.setDateSortie(convertStringToDate(jTextField_date.getText()));
+				if (video.getSynopsis() != jTextArea_synopsis.getText())
+					video.setSynopsis(jTextArea_synopsis.getText());
+				if (video.getTitre() != jTextField_titre.getText())
+					video.setTitre(jTextField_titre.getText());
+
 				location.modifierVideo(video);
-			}else{
-				location.ajouterVideo(video);
+			}else {
+				if (jTextArea_synopsis.getText() != "" && jTextField_date.getText() != "" && jTextField_duree.getText() != "" && jTextField_titre.getText() != "") {
+					video = new Video(jTextField_titre.getText(), Integer.parseInt(jTextField_duree.getText()), convertStringToDate(jTextField_date.getText()), jTextArea_synopsis.getText(), location.getCategorieParSonLibelle(jComboBox_categories.getSelectedItem().toString()));
+					location.ajouterVideo(video);	
+				}
 			}
 			fenetrePrincipale.actualiserListes();
 			dispose();
