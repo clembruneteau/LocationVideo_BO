@@ -16,7 +16,6 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
 import org.joda.time.DateTime;
-import org.joda.time.JodaTimePermission;
 
 import fr.epsi.location.pojo.Categorie;
 import fr.epsi.location.pojo.Video;
